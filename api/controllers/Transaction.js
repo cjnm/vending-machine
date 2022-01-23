@@ -1,62 +1,61 @@
 const InventoriesModel = require('../models/Inventories');
 const MoneyModel = require('../models/Money');
 
-exports.buy = async (orders, coin) => {
-    if (!Array.isArray(orders)) {
-        return { status: 400, error: 'Invalid argument supplied for purchase.', products: null, refund: coin };
+exports.buy = async (products, coin) => {
+    if (!Array.isArray(products)) {
+        return { error: true, message: 'Invalid argument supplied for purchase.', products: null, refund: coin };
     }
 
-    if (!await areProductsAvailable(orders)) {
-        return { status: 400, error: 'Supplied products does not exist in inventory.', products: null, refund: coin };
+    if (!await areProductsAvailable(products)) {
+        return { error: true, message: 'Supplied products does not exist in inventory.', products: null, refund: coin };
     }
 
-    let cost = await calculateCost(orders);
+    let cost = await calculateCost(products);
     let refundAmount = coin - cost;
 
     if (refundAmount < 0) {
-        return { status: 400, error: 'Insufficient coin insetred.', products: null, refund: coin };
+        return { error: true, message: 'Insufficient coin insetred.', products: null, refund: coin };
     }
 
-    if (!await isInventoryAvailable(orders)) {
-        return { status: 400, error: 'Insufficient inventory available.', products: null, refund: coin };
+    if (!await isInventoryAvailable(products)) {
+        return { error: true, message: 'Insufficient inventory available.', products: null, refund: coin };
     }
 
     // Initializing purchase.
-    await updateInventory(orders);
+    await updateInventory(products);
     await updateMoney(cost);
-    return { status: 200, error: null, products: orders, refund: refundAmount };
+    return { error: false, message: null, products: products, refund: refundAmount };
 }
 
-exports.return = async (orders) => {
-    if (!Array.isArray(orders)) {
-        return { status: 400, error: 'Invalid argument supplied for return.', products: null, refund: null };
+exports.return = async (products) => {
+    if (!Array.isArray(products)) {
+        return { error: true, message: 'Invalid argument supplied for return.', products: null, refund: null };
     }
 
-    if (!await areProductsAvailable(orders)) {
-        return { status: 400, error: 'Supplied products was not sold from this vending machine.', products: orders, refund: null };
+    if (!await areProductsAvailable(products)) {
+        return { error: true, message: 'Supplied products was not sold from this vending machine.', products: products, refund: null };
     }
 
-    if (!await isInventoryRefundable(orders)) {
-        return { status: 400, error: 'Cannot return more products than total sold', products: orders, refund: null };
+    if (!await isInventoryRefundable(products)) {
+        return { error: true, message: 'Cannot return more products than total sold', products: products, refund: null };
     }
 
-    let refundAmount = await calculateCost(orders);
+    let refundAmount = await calculateCost(products);
 
     // Initializing purchase.
-    await updateInventory(orders, true);
+    await updateInventory(products, true);
     await updateMoney(-refundAmount);
-    return { status: 200, error: null, products: null, refund: refundAmount };
+    return { error: false, message: null, products: null, refund: refundAmount };
 
 }
 
-async function updateInventory(orders, refund = false) {
+async function updateInventory(products, refund = false) {
     let newInventory = 0;
-    orders.forEach(async (order) => {
-        InventoriesModel.findOne({ name: order.item }, async (item) => {
-            newInventory = refund ? item.quantity + order.quantity : item.quantity - order.quantity;
-            await InventoriesModel.findOneAndUpdate({ _id: item._id }, { quantity: newInventory });
-        });
-    });
+    for (const product of products) {
+        let item = await InventoriesModel.findOne({ name: product.item }).exec();
+        newInventory = refund ? item.quantity + product.quantity : item.quantity - product.quantity;
+        await InventoriesModel.findOneAndUpdate({ _id: item._id }, { quantity: newInventory });
+    }
     return;
 }
 
@@ -67,46 +66,47 @@ async function updateMoney(coin) {
     return;
 }
 
-async function calculateCost(orders) {
-    let cost;
-    orders.forEach((order) => {
-        cost += order.price;
-    });
+async function calculateCost(products) {
+    let cost = 0;
+    for (const product of products) {
+        let item = await InventoriesModel.findOne({ name: product.item }).exec();
+        cost = cost + (item.price * product.quantity);
+    }
     return cost;
 }
 
-async function isInventoryAvailable(orders) {
+async function isInventoryAvailable(products) {
     let availibility = true;
-    orders.forEach(async (order) => {
-        await InventoriesModel.findOne({ name: order.item }, function (inventory) {
-            if (inventory.quantity < order.quantity) {
-                availibility = false;
-            }
-        });
-    });
+    for (const product of products) {
+        let inventory = await InventoriesModel.findOne({ name: product.item }).exec();
+        if (inventory.quantity < product.quantity) {
+            availibility = false;
+        }
+    };
     return availibility;
 }
 
-async function isInventoryRefundable(orders) {
+async function isInventoryRefundable(products) {
     let refundable = true;
-    orders.forEach(async (order) => {
-        await InventoriesModel.findOne({ name: order.item }, function (inventory) {
-            if ((10 - inventory.quantity) < order.quantity) {
-                refundable = false;
-            }
-        });
-    });
+    for (const product of products) {
+        let inventory = await InventoriesModel.findOne({ name: product.item }).exec();
+        if ((10 - inventory.quantity) < product.quantity) {
+            refundable = false;
+        }
+    }
     return refundable;
 }
 
-async function areProductsAvailable(orders) {
+async function areProductsAvailable(products) {
     let availibility = true;
-    orders.forEach(async (order) => {
-        await InventoriesModel.countDocuments({ name: order.item }, function (count) {
-            if (count <= 0) {
-                availibility = false;
-            }
-        });
-    });
+    for (const product of products) {
+        let count = await InventoriesModel.countDocuments({ name: product.item }).exec();
+        if (!count) {
+            return false;
+        }
+        if (count <= 0) {
+            availibility = false;
+        }
+    }
     return availibility;
 } 

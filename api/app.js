@@ -8,6 +8,7 @@ let mongoDB = process.env.MONGODB_URI || 'mongodb://127.0.0.1/vending-machine';
 mongoose.connect(mongoDB, {
   useUnifiedTopology: true,
   useNewUrlParser: true,
+  useFindAndModify: false,
 }).then(() => console.log('DB Connected!'))
   .catch(err => {
     console.log(`DB Connection Error: ${err.message}`);
