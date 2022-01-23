@@ -1,12 +1,19 @@
-var express = require('express');
-var logger = require('morgan');
+require('dotenv').config();
+let express = require('express'),
+    mongoose = require('mongoose');
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+let indexRouter = require('./routes/index');
 
-var app = express();
+let mongoDB = process.env.MONGODB_URI || 'mongodb://127.0.0.1/vending-machine';
+mongoose.connect(mongoDB, {
+  useUnifiedTopology: true,
+  useNewUrlParser: true,
+}).then(() => console.log('DB Connected!'))
+  .catch(err => {
+    console.log(`DB Connection Error: ${err.message}`);
+  });
 
-app.use(logger('dev'));
+let app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
