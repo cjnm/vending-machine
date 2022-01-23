@@ -33,8 +33,8 @@ exports.return = async (orders) => {
 
 async function updateInventory(orders) {
     let newInventory = 0;
-    orders.forEach((order) => {
-        InventoriesModel.findOne({ name: order.item }, function (item) {
+    orders.forEach(async (order) => {
+        InventoriesModel.findOne({ name: order.item }, async (item) => {
             newInventory = item.quantity;
             await InventoriesModel.findOneAndUpdate({ _id: item._id }, { quantity: newInventory });
         });
@@ -59,8 +59,8 @@ async function calculateCost(orders) {
 
 async function isInventoryAvailable(orders) {
     let availibility = true;
-    orders.forEach((order) => {
-        InventoriesModel.findOne({ name: order.item }, function (inventory) {
+    orders.forEach(async (order) => {
+        await InventoriesModel.findOne({ name: order.item }, function (inventory) {
             if (inventory.quantity < order.quantity) {
                 availibility = false;
             }
@@ -71,8 +71,8 @@ async function isInventoryAvailable(orders) {
 
 async function areProductsAvailable(orders) {
     let availibility = true;
-    orders.forEach((order) => {
-        InventoriesModel.countDocuments({ name: order.item }, function (count) {
+    orders.forEach(async (order) => {
+        await InventoriesModel.countDocuments({ name: order.item }, function (count) {
             if (count <= 0) {
                 availibility = false;
             }
