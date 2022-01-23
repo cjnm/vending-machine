@@ -1,10 +1,10 @@
 let express = require('express');
 let router = express.Router();
 
-let middlewares = require('../middlewares/middlewares');
+let { canDispense, canReturn  } = require('../middlewares/middlewares');
 let transactionController = require('../controllers/Transaction');
 
-router.post('/purchase',middlewares.checkInventoryAndCoinAvailibility, async (req, res) => {
+router.post('/purchase', canDispense, async (req, res) => {
     let purchaseData = req.body;
     let coin = purchaseData.coin;
     let products = purchaseData.products;
@@ -17,7 +17,7 @@ router.post('/purchase',middlewares.checkInventoryAndCoinAvailibility, async (re
     }
 });
 
-router.post('/return', async (req, res) => {
+router.post('/return', canReturn, async (req, res) => {
     let products = req.body.products;
 
     let response = await transactionController.return(products);
