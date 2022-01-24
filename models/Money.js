@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 
+// Mongoose schema for Money.
 let moneySchema = new mongoose.Schema({
     coin: Number,
     cash: Number,

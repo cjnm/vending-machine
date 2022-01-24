@@ -1,3 +1,4 @@
+// Check if the posted payload for product purchase is valid.
 module.exports.canDispense = async (req, res, next) => {
   let data = req.body;
   let products = data.products;
@@ -10,6 +11,7 @@ module.exports.canDispense = async (req, res, next) => {
   }
 }
 
+// Check if the posted payload for product return is valid.
 module.exports.canReturn = async (req, res, next) => {
   let data = req.body;
   let products = data.products;

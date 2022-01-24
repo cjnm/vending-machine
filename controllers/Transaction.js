@@ -1,6 +1,14 @@
 const InventoriesModel = require('../models/Inventories');
 const MoneyModel = require('../models/Money');
 
+/**
+ * Purchase one or multiple items, decrease inventory and increase coins.
+ *
+ * @param   {Array}  products  Array containing product object with item and quantity
+ * @param   {Intger}  coin     Coin inserted by user in vending machine
+ *
+ * @return  {json}  Returns json containing status, error, and inventories array containing inventory object.
+ */
 exports.buy = async (products, coin) => {
     if (!Array.isArray(products)) {
         return { error: true, message: 'Invalid argument supplied for purchase.', products: null, refund: coin };
@@ -27,6 +35,13 @@ exports.buy = async (products, coin) => {
     return { error: false, message: null, products: products, refund: refundAmount };
 }
 
+/**
+ * Create refunds for products purchased from inventory.
+ *
+ * @param   {array}  products  Array containing product object with item and quantity
+ *
+ * @return  {json}  Returns json containing message, error, refund and products array containing inventory object.
+ */
 exports.return = async (products) => {
     if (!Array.isArray(products)) {
         return { error: true, message: 'Invalid argument supplied for return.', products: null, refund: null };
@@ -49,6 +64,7 @@ exports.return = async (products) => {
 
 }
 
+//Increase or decrease inventory on the basis of refund flag
 async function updateInventory(products, refund = false) {
     let newInventory = 0;
     for (const product of products) {
@@ -59,6 +75,7 @@ async function updateInventory(products, refund = false) {
     return;
 }
 
+// Increase or decrease coin from database.
 async function updateMoney(coin) {
     let money = await MoneyModel.findOne({}).exec();
     let newCoin = money.coin + coin;
@@ -66,6 +83,7 @@ async function updateMoney(coin) {
     return;
 }
 
+// Calculate the cost of all products supplied for purchase or return.
 async function calculateCost(products) {
     let cost = 0;
     for (const product of products) {
@@ -75,6 +93,7 @@ async function calculateCost(products) {
     return cost;
 }
 
+// Check if inventory is available for purchase.
 async function isInventoryAvailable(products) {
     let availibility = true;
     for (const product of products) {
@@ -86,6 +105,7 @@ async function isInventoryAvailable(products) {
     return availibility;
 }
 
+// Check if the products being returned has been sold from the vending machine.
 async function isInventoryRefundable(products) {
     let refundable = true;
     for (const product of products) {
@@ -97,6 +117,7 @@ async function isInventoryRefundable(products) {
     return refundable;
 }
 
+// Check if product being requested/returned is actually sold from the achine.
 async function areProductsAvailable(products) {
     let availibility = true;
     for (const product of products) {

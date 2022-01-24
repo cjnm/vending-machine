@@ -4,6 +4,10 @@ let router = express.Router();
 let { canDispense, canReturn  } = require('../middlewares/middlewares');
 let transactionController = require('../controllers/Transaction');
 
+/**
+ * Validate and create purchase for products with available inventory 
+ * @return  {json}  Returns json containing refund, error, message and products array containing inventory object.
+ */
 router.post('/purchase', canDispense, async (req, res) => {
     let purchaseData = req.body;
     let coin = purchaseData.coin;
@@ -17,6 +21,10 @@ router.post('/purchase', canDispense, async (req, res) => {
     }
 });
 
+/**
+ * Validate and create refunds for products purchased from inventory
+ * @return  {json}  Returns json containing message, error, refund and products array containing inventory object.
+ */
 router.post('/return', canReturn, async (req, res) => {
     let products = req.body.products;
 
