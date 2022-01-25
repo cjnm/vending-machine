@@ -13,7 +13,7 @@ describe('Purchase Test', () => {
             "coin": 20
         };
 
-        return request(app).post('/purchase')
+        return request(app).post('/api/purchase')
             .send(payload)
             .expect(200)
             .expect('Content-Type', /json/)
@@ -41,7 +41,7 @@ describe('Purchase Test', () => {
             "coin": 5000
         };
 
-        return request(app).post('/purchase')
+        return request(app).post('/api/purchase')
             .send(payload)
             .expect(400)
             .expect('Content-Type', /json/)
@@ -64,7 +64,7 @@ describe('Purchase Test', () => {
             "coin": 8
         };
 
-        return request(app).post('/purchase')
+        return request(app).post('/api/purchase')
             .send(payload)
             .expect(400)
             .expect('Content-Type', /json/)
@@ -87,7 +87,7 @@ describe('Purchase Test', () => {
             "coin": 8
         };
 
-        return request(app).post('/purchase')
+        return request(app).post('/api/purchase')
             .send(payload)
             .expect(400)
             .expect('Content-Type', /json/)
@@ -111,7 +111,7 @@ describe('Return Test', () => {
             ]
         };
 
-        return request(app).post('/return')
+        return request(app).post('/api/return')
             .send(payload)
             .expect(200)
             .expect('Content-Type', /json/)
@@ -133,7 +133,7 @@ describe('Return Test', () => {
             ]
         };
 
-        return request(app).post('/return')
+        return request(app).post('/api/return')
             .send(payload)
             .expect(400)
             .expect('Content-Type', /json/)

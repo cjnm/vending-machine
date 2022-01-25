@@ -18,6 +18,6 @@ let app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-app.use('/', indexRouter);
+app.use('/api/', indexRouter);
 
 module.exports = app;

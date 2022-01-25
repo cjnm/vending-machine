@@ -3,7 +3,7 @@ let request = require('supertest');
 
 describe('Inventory Test', () => {
     it('GET the list of inventories form /inventory endpoint', () => {
-        return request(app).get('/inventory')
+        return request(app).get('/api/inventory')
             .expect(200)
             .expect('Content-Type', /json/)
             .then((response) => {
