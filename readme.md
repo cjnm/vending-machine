@@ -1,10 +1,10 @@
 # Introduction
----
+
 Vending machine was build to simulate a vending machine which takes in order and coin and dispenses the order with changes back to buyer.
 If there is no inventory available or the coin inserted is not sufficient then the buyer is issued with refund.
 User can also return the products they have bought and as the maximum capacity of vending machine for each product is 10, refund is only processed until the inventory gets to 10 units.
 # Setup
----
+
 ## Prerequisite
 - NodeJS (latest LTS version)
 - MongoDB
@@ -32,7 +32,7 @@ npm start
 ```
 
 # Implementation
----
+
 ## Endpoints
 Currently there are three endpoints available, one for purchase, one for return and one to check the inventory status.
 
