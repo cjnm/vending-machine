@@ -20,7 +20,7 @@ npm install
 ```
 - Seed database
 ```
-npm seed
+npm run seed
 ```
 - Test
 ```
